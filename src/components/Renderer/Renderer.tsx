@@ -15,8 +15,21 @@ export function Renderer() {
       return;
     }
 
-    const render = init(gl);
-    // render();
+    const { drawScene, setRotation } = init(gl);
+
+    if (window.location.search.includes('animate')) {
+      let i = 0;
+
+      const intervalId = setInterval(() => {
+        i++;
+        setRotation(-i);
+        drawScene();
+      }, 100);
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
   }, []);
 
   return (

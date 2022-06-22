@@ -5,7 +5,10 @@ import { setGeometry, setNormals } from '../models/f';
 
 declare const m4: any;
 
-export function init(gl: WebGL2RenderingContext): () => void {
+export function init(gl: WebGL2RenderingContext): {
+  setRotation: (value: number) => void;
+  drawScene: () => void;
+} {
   const program = createShaderProgram(
     gl,
     baseVertexShaderInfo,
@@ -76,6 +79,10 @@ export function init(gl: WebGL2RenderingContext): () => void {
     );
   }
 
+  function radToDeg(r: number) {
+    return (r * 180) / Math.PI;
+  }
+
   function degToRad(d: number) {
     return (d * Math.PI) / 180;
   }
@@ -83,7 +90,7 @@ export function init(gl: WebGL2RenderingContext): () => void {
   // First let's make some variables
   // to hold the translation,
   const fieldOfViewRadians = degToRad(60);
-  const fRotationRadians = 0;
+  let fRotationRadians = 0;
 
   drawScene();
 
@@ -161,5 +168,10 @@ export function init(gl: WebGL2RenderingContext): () => void {
     gl.drawArrays(primitiveType, offset, count);
   }
 
-  return drawScene;
+  return {
+    setRotation: (value) => {
+      fRotationRadians = degToRad(value);
+    },
+    drawScene,
+  };
 }
