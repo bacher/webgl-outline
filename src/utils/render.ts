@@ -19,9 +19,6 @@ export function init(gl: WebGL2RenderingContext): {
     program.locations.getAttribute('a_position');
   const normalAttributeLocation = program.locations.getAttribute('a_normal');
 
-  // Create a buffer
-  const positionBuffer = gl.createBuffer();
-
   // Create a vertex array object (attribute state)
   const vao = gl.createVertexArray();
 
@@ -31,6 +28,8 @@ export function init(gl: WebGL2RenderingContext): {
   // Turn on the attribute
   gl.enableVertexAttribArray(positionAttributeLocation);
 
+  // Create a buffer
+  const positionBuffer = gl.createBuffer();
   // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   // Set Geometry.
@@ -78,6 +77,8 @@ export function init(gl: WebGL2RenderingContext): {
       offset,
     );
   }
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
   function radToDeg(r: number) {
     return (r * 180) / Math.PI;
