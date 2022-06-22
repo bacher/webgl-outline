@@ -1,0 +1,106 @@
+{
+  "mtlLib": "cube.mtl",
+  "objects": [
+    {
+      "name": "Cube",
+      "vertices": [
+        [1, 1, -1],
+        [1, -1, -1],
+        [1, 1, 1],
+        [1, -1, 1],
+        [-1, 1, -1],
+        [-1, -1, -1],
+        [-1, 1, 1],
+        [-1, -1, 1]
+      ],
+      "uvs": [
+        [0.625, 0.5],
+        [0.375, 0.5],
+        [0.625, 0.75],
+        [0.375, 0.75],
+        [0.875, 0.5],
+        [0.625, 0.25],
+        [0.125, 0.5],
+        [0.375, 0.25],
+        [0.875, 0.75],
+        [0.625, 1],
+        [0.625, 0],
+        [0.375, 1],
+        [0.375, 0],
+        [0.125, 0.75]
+      ],
+      "normals": [
+        [0, 1, 0],
+        [0, 0, 1],
+        [-1, 0, 0],
+        [0, -1, 0],
+        [1, 0, 0],
+        [0, 0, -1]
+      ],
+      "faces": [
+        [
+          { "vertex": 0, "uv": 0, "normal": 0 },
+          { "vertex": 4, "uv": 4, "normal": 0 },
+          { "vertex": 6, "uv": 8, "normal": 0 }
+        ],
+        [
+          { "vertex": 6, "uv": 8, "normal": 0 },
+          { "vertex": 2, "uv": 2, "normal": 0 },
+          { "vertex": 0, "uv": 0, "normal": 0 }
+        ],
+        [
+          { "vertex": 3, "uv": 3, "normal": 1 },
+          { "vertex": 2, "uv": 2, "normal": 1 },
+          { "vertex": 6, "uv": 9, "normal": 1 }
+        ],
+        [
+          { "vertex": 6, "uv": 9, "normal": 1 },
+          { "vertex": 7, "uv": 11, "normal": 1 },
+          { "vertex": 3, "uv": 3, "normal": 1 }
+        ],
+        [
+          { "vertex": 7, "uv": 12, "normal": 2 },
+          { "vertex": 6, "uv": 10, "normal": 2 },
+          { "vertex": 4, "uv": 5, "normal": 2 }
+        ],
+        [
+          { "vertex": 4, "uv": 5, "normal": 2 },
+          { "vertex": 5, "uv": 7, "normal": 2 },
+          { "vertex": 7, "uv": 12, "normal": 2 }
+        ],
+        [
+          { "vertex": 5, "uv": 6, "normal": 3 },
+          { "vertex": 1, "uv": 1, "normal": 3 },
+          { "vertex": 3, "uv": 3, "normal": 3 }
+        ],
+        [
+          { "vertex": 3, "uv": 3, "normal": 3 },
+          { "vertex": 7, "uv": 13, "normal": 3 },
+          { "vertex": 5, "uv": 6, "normal": 3 }
+        ],
+        [
+          { "vertex": 1, "uv": 1, "normal": 4 },
+          { "vertex": 0, "uv": 0, "normal": 4 },
+          { "vertex": 2, "uv": 2, "normal": 4 }
+        ],
+        [
+          { "vertex": 2, "uv": 2, "normal": 4 },
+          { "vertex": 3, "uv": 3, "normal": 4 },
+          { "vertex": 1, "uv": 1, "normal": 4 }
+        ],
+        [
+          { "vertex": 5, "uv": 7, "normal": 5 },
+          { "vertex": 4, "uv": 5, "normal": 5 },
+          { "vertex": 0, "uv": 0, "normal": 5 }
+        ],
+        [
+          { "vertex": 0, "uv": 0, "normal": 5 },
+          { "vertex": 1, "uv": 1, "normal": 5 },
+          { "vertex": 5, "uv": 7, "normal": 5 }
+        ]
+      ],
+      "smoothShading": 0,
+      "mtl": "Material"
+    }
+  ]
+}
