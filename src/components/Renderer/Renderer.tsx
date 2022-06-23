@@ -23,11 +23,13 @@ export function Renderer() {
     if (window.location.search.includes('animate')) {
       let i = 0;
 
+      const interval = 100;
+
       const intervalId = setInterval(() => {
         i++;
-        setRotation(-i);
+        setRotation(-i * 5 * (interval / 100));
         drawScene();
-      }, 100);
+      }, interval);
 
       return () => {
         clearInterval(intervalId);

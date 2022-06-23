@@ -97,11 +97,12 @@ export function init(
     gl.bindFramebuffer(gl.FRAMEBUFFER, solidSceneFb);
     drawScene({ depthTest: false, cullFace: true }, () => {
       drawObject(gl, solidProgram, solidVao, matrices, (program) => {
-        program.setUniform4Float('u_color', [0, 0, 0, 1]);
+        program.setUniform4Float('u_color', [1, 0, 0, 1]);
       });
     });
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
+    gl.bindFramebuffer(gl.FRAMEBUFFER, blurredFb);
     drawScene({ depthTest: false, cullFace: false }, () => {
       outlineProgram.activate();
 
@@ -116,8 +117,24 @@ export function init(
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     });
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-    /*drawScene({ depthTest: true, cullFace: true }, () => {
+    drawScene({ depthTest: false, cullFace: false }, () => {
+      outlineProgram.activate();
+
+      // Bind the attribute/buffer set we want.
+      gl.bindVertexArray(outlineVao);
+
+      gl.bindTexture(gl.TEXTURE_2D, blurredTexture);
+
+      outlineProgram.setUniformInt('u_texture', 0);
+      outlineProgram.setUniformFloat('u_x_shift', 3 / canvasSize.width);
+      outlineProgram.setUniformFloat('u_y_shift', 3 / canvasSize.height);
+
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+    });
+
+    drawScene({ depthTest: true, cullFace: true, clear: false }, () => {
       drawObject(gl, lightProgram, lightVao, matrices, (program) => {
         program.setUniform4Float('u_color', [0.2, 1, 0.2, 1]);
 
@@ -126,20 +143,26 @@ export function init(
           m4.normalize([0.5, 0.7, 1]),
         );
       });
-    });*/
+    });
   }
 
   // Draw the scene.
   function drawScene(
-    { depthTest, cullFace }: { depthTest: boolean; cullFace: boolean },
+    {
+      depthTest,
+      cullFace,
+      clear = true,
+    }: { depthTest: boolean; cullFace: boolean; clear?: boolean },
     drawCallback: () => void,
   ) {
     // Tell WebGL how to convert from clip space to pixels
     gl.viewport(0, 0, canvasSize.width, canvasSize.height);
 
-    // Clear the canvas
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    if (clear) {
+      // Clear the canvas
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    }
 
     if (depthTest) {
       gl.enable(gl.DEPTH_TEST);
