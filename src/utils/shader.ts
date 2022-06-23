@@ -90,7 +90,7 @@ export function createShaderProgram(
     const location = attributes[attributeName];
 
     if (location === undefined) {
-      throw new Error('Invalid attribute');
+      throw new Error(`Invalid attribute "${attributeName}"`);
     }
 
     return location;
@@ -117,6 +117,9 @@ export function createShaderProgram(
     },
     setUniformInt: (uniformName, value) => {
       gl.uniform1i(getUniform(uniformName), value);
+    },
+    setUniformFloat: (uniformName, value) => {
+      gl.uniform1f(getUniform(uniformName), value);
     },
     setUniformUInt: (uniformName, value) => {
       gl.uniform1ui(getUniform(uniformName), value);

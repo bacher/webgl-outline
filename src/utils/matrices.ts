@@ -9,17 +9,17 @@ export type MatricesResult = {
 
 export function computeMatrices({
   state,
-  canvas,
+  aspectRatio,
 }: {
   state: { fRotationRadians: number };
-  canvas: { width: number; height: number };
+  aspectRatio: number;
 }): MatricesResult {
   const fieldOfViewRadians = degToRad(60);
 
   // Compute the matrix
   const projectionMatrix = m4.perspective(
     fieldOfViewRadians,
-    canvas.width / canvas.height,
+    aspectRatio,
     1,
     2000,
   );

@@ -8,9 +8,11 @@ export function initVao(
   {
     position,
     normal,
+    uv,
   }: {
     position: AttributeInformation;
-    normal: AttributeInformation;
+    normal?: AttributeInformation;
+    uv?: AttributeInformation;
   },
 ): WebGLVertexArrayObject {
   // Create a vertex array object (attribute state)
@@ -44,26 +46,52 @@ export function initVao(
     );
   }
 
-  // Turn on the attribute
-  gl.enableVertexAttribArray(normal.attributeLocation);
+  if (normal) {
+    // Turn on the attribute
+    gl.enableVertexAttribArray(normal.attributeLocation);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, normal.buffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, normal.buffer);
 
-  {
-    // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
-    const size = 3; // 3 components per iteration
-    const type = gl.FLOAT; // the data is 32bit floats
-    const normalize = false; // don't normalize the data
-    const stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next color
-    const offset = 0; // start at the beginning of the buffer
-    gl.vertexAttribPointer(
-      normal.attributeLocation,
-      size,
-      type,
-      normalize,
-      stride,
-      offset,
-    );
+    {
+      // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
+      const size = 3; // 3 components per iteration
+      const type = gl.FLOAT; // the data is 32bit floats
+      const normalize = false; // don't normalize the data
+      const stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next color
+      const offset = 0; // start at the beginning of the buffer
+      gl.vertexAttribPointer(
+        normal.attributeLocation,
+        size,
+        type,
+        normalize,
+        stride,
+        offset,
+      );
+    }
+  }
+
+  if (uv) {
+    // Turn on the attribute
+    gl.enableVertexAttribArray(uv.attributeLocation);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, uv.buffer);
+
+    {
+      // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
+      const size = 2; // 3 components per iteration
+      const type = gl.FLOAT; // the data is 32bit floats
+      const normalize = false; // don't normalize the data
+      const stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next color
+      const offset = 0; // start at the beginning of the buffer
+      gl.vertexAttribPointer(
+        uv.attributeLocation,
+        size,
+        type,
+        normalize,
+        stride,
+        offset,
+      );
+    }
   }
 
   gl.bindBuffer(gl.ARRAY_BUFFER, null);

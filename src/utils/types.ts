@@ -17,6 +17,7 @@ export type ShaderProgram = {
     getAttribute: (attributeName: string) => number;
   };
   setUniformInt: (uniformName: string, value: number) => void;
+  setUniformFloat: (uniformName: string, value: number) => void;
   setUniformUInt: (uniformName: string, value: number) => void;
   setUniformUIntArray: (uniformName: string, value: Uint32Array) => void;
   setUniform3Float: (

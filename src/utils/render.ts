@@ -7,97 +7,160 @@ import { initVao } from './vao';
 import { computeMatrices, MatricesResult } from './matrices';
 import { degToRad } from './rad';
 import { ShaderProgram } from './types';
+import { createEmptyTexture, createFramebuffer } from './texture';
+import { flatVertexShaderInfo } from './shaders/flat.vertex';
+import { textureFragmentShaderInfo } from './shaders/texture.fragment';
+import { initSquareModelBuffers } from '../models/square';
 
 declare const m4: any;
 
-export function init(gl: WebGL2RenderingContext): {
+export function init(
+  gl: WebGL2RenderingContext,
+  canvasSize: { width: number; height: number },
+): {
   setRotation: (value: number) => void;
   drawScene: () => void;
 } {
-  const lightProgram = createShaderProgram(
-    gl,
-    baseVertexShaderInfo,
-    lightFragmentShaderInfo,
-  );
-
   const solidProgram = createShaderProgram(
     gl,
     baseVertexShaderInfo,
     solidFragmentShaderInfo,
   );
 
-  const { positionBuffer, normalBuffer } = initModelBuffers(gl);
+  const outlineProgram = createShaderProgram(
+    gl,
+    flatVertexShaderInfo,
+    textureFragmentShaderInfo,
+  );
+
+  const lightProgram = createShaderProgram(
+    gl,
+    baseVertexShaderInfo,
+    lightFragmentShaderInfo,
+  );
+
+  const fModel = initModelBuffers(gl);
+  const squareModel = initSquareModelBuffers(gl);
+
+  const solidVao = initVao(gl, {
+    position: {
+      buffer: fModel.positionBuffer,
+      attributeLocation: solidProgram.locations.getAttribute('a_position'),
+    },
+    normal: {
+      buffer: fModel.normalBuffer,
+      attributeLocation: solidProgram.locations.getAttribute('a_normal'),
+    },
+  });
+
+  const outlineVao = initVao(gl, {
+    position: {
+      buffer: squareModel.positionBuffer,
+      attributeLocation: outlineProgram.locations.getAttribute('a_position'),
+    },
+    uv: {
+      buffer: squareModel.uvBuffer,
+      attributeLocation: outlineProgram.locations.getAttribute('a_uv'),
+    },
+  });
 
   const lightVao = initVao(gl, {
     position: {
-      buffer: positionBuffer,
+      buffer: fModel.positionBuffer,
       attributeLocation: lightProgram.locations.getAttribute('a_position'),
     },
     normal: {
-      buffer: normalBuffer,
+      buffer: fModel.normalBuffer,
       attributeLocation: lightProgram.locations.getAttribute('a_normal'),
     },
   });
 
-  const solidVao = initVao(gl, {
-    position: {
-      buffer: positionBuffer,
-      attributeLocation: solidProgram.locations.getAttribute('a_position'),
-    },
-    normal: {
-      buffer: normalBuffer,
-      attributeLocation: solidProgram.locations.getAttribute('a_normal'),
-    },
-  });
+  const solidSceneTexture = createEmptyTexture(gl, canvasSize);
+  const solidSceneFb = createFramebuffer(gl, solidSceneTexture);
+
+  const blurredTexture = createEmptyTexture(gl, canvasSize);
+  const blurredFb = createFramebuffer(gl, blurredTexture);
 
   // First let's make some variables
   // to hold the translation,
   let fRotationRadians = 0;
 
-  drawScene();
+  drawFrame();
+
+  // Draw the frame.
+  function drawFrame() {
+    const matrices = computeMatrices({
+      state: { fRotationRadians },
+      aspectRatio: canvasSize.width / canvasSize.height,
+    });
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, solidSceneFb);
+    drawScene({ depthTest: false, cullFace: true }, () => {
+      drawObject(gl, solidProgram, solidVao, matrices, (program) => {
+        program.setUniform4Float('u_color', [0, 0, 0, 1]);
+      });
+    });
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    drawScene({ depthTest: false, cullFace: false }, () => {
+      outlineProgram.activate();
+
+      // Bind the attribute/buffer set we want.
+      gl.bindVertexArray(outlineVao);
+
+      gl.bindTexture(gl.TEXTURE_2D, solidSceneTexture);
+
+      outlineProgram.setUniformInt('u_texture', 0);
+      outlineProgram.setUniformFloat('u_x_shift', 1 / canvasSize.width);
+      outlineProgram.setUniformFloat('u_y_shift', 1 / canvasSize.height);
+
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+    });
+
+    /*drawScene({ depthTest: true, cullFace: true }, () => {
+      drawObject(gl, lightProgram, lightVao, matrices, (program) => {
+        program.setUniform4Float('u_color', [0.2, 1, 0.2, 1]);
+
+        program.setUniform3Float(
+          'u_reverseLightDirection',
+          m4.normalize([0.5, 0.7, 1]),
+        );
+      });
+    });*/
+  }
 
   // Draw the scene.
-  function drawScene() {
+  function drawScene(
+    { depthTest, cullFace }: { depthTest: boolean; cullFace: boolean },
+    drawCallback: () => void,
+  ) {
     // Tell WebGL how to convert from clip space to pixels
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.viewport(0, 0, canvasSize.width, canvasSize.height);
 
     // Clear the canvas
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // turn on depth testing
-    gl.enable(gl.DEPTH_TEST);
+    if (depthTest) {
+      gl.enable(gl.DEPTH_TEST);
+    } else {
+      gl.disable(gl.DEPTH_TEST);
+    }
 
-    // tell webgl to cull faces
-    gl.enable(gl.CULL_FACE);
+    if (cullFace) {
+      gl.enable(gl.CULL_FACE);
+    } else {
+      gl.disable(gl.CULL_FACE);
+    }
 
-    const matrices = computeMatrices({
-      state: { fRotationRadians },
-      canvas: {
-        width: gl.canvas.clientWidth,
-        height: gl.canvas.clientHeight,
-      },
-    });
-
-    drawObject(gl, solidProgram, solidVao, matrices, (program) => {
-      program.setUniform4Float('u_color', [0, 0, 0, 1]);
-    });
-
-    drawObject(gl, lightProgram, lightVao, matrices, (program) => {
-      program.setUniform4Float('u_color', [0.2, 1, 0.2, 1]);
-
-      program.setUniform3Float(
-        'u_reverseLightDirection',
-        m4.normalize([0.5, 0.7, 1]),
-      );
-    });
+    drawCallback();
   }
 
   return {
     setRotation: (value) => {
       fRotationRadians = degToRad(value);
     },
-    drawScene,
+    drawScene: drawFrame,
   };
 }
 

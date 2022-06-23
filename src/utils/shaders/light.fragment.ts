@@ -1,4 +1,4 @@
-import { FragmentShaderInfo } from '../types';
+import type { FragmentShaderInfo } from '../types';
 
 export const lightFragmentShaderInfo: FragmentShaderInfo = {
   source: `

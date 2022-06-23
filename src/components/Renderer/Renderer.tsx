@@ -15,7 +15,10 @@ export function Renderer() {
       return;
     }
 
-    const { drawScene, setRotation } = init(gl);
+    const { drawScene, setRotation } = init(gl, {
+      width: canvas.width,
+      height: canvas.height,
+    });
 
     if (window.location.search.includes('animate')) {
       let i = 0;
