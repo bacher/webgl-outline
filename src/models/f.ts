@@ -2,7 +2,7 @@ declare const m4: any;
 
 // Fill the current ARRAY_BUFFER buffer
 // with the values that define a letter 'F'.
-export function setGeometry(gl: WebGL2RenderingContext) {
+function setGeometry(gl: WebGL2RenderingContext) {
   const positions = new Float32Array([
     // left column front
     0, 0, 0, 0, 150, 0, 30, 0, 0, 0, 150, 0, 30, 150, 0, 30, 0, 0,
@@ -78,7 +78,7 @@ export function setGeometry(gl: WebGL2RenderingContext) {
   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
 }
 
-export function setNormals(gl: WebGL2RenderingContext) {
+function setNormals(gl: WebGL2RenderingContext) {
   const normals = new Float32Array([
     // left column front
     0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
@@ -130,4 +130,35 @@ export function setNormals(gl: WebGL2RenderingContext) {
   ]);
 
   gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+}
+
+export function initModelBuffers(gl: WebGL2RenderingContext): {
+  positionBuffer: WebGLBuffer;
+  normalBuffer: WebGLBuffer;
+} {
+  // Create a buffer
+  const positionBuffer = gl.createBuffer();
+  if (!positionBuffer) {
+    throw new Error("Can't create buffer");
+  }
+
+  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  // Set Geometry.
+  setGeometry(gl);
+
+  // create the normals buffer, make it the current ARRAY_BUFFER
+  // and copy in the normal values
+  const normalBuffer = gl.createBuffer();
+  if (!normalBuffer) {
+    throw new Error("Can't create buffer");
+  }
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+  setNormals(gl);
+
+  return {
+    positionBuffer,
+    normalBuffer,
+  };
 }

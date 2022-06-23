@@ -100,7 +100,7 @@ export function createShaderProgram(
     const location = uniforms[uniformName];
 
     if (location === undefined) {
-      throw new Error('Invalid uniform');
+      throw new Error(`Invalid uniform name "${uniformName}"`);
     }
 
     return location;
