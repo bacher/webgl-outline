@@ -8,7 +8,8 @@ export function Renderer() {
 
   useEffect(() => {
     const canvas = canvasRef.current!;
-    const gl = canvas.getContext('webgl2');
+    // const gl = canvas.getContext('webgl2', { stencil: true });
+    const gl = canvas.getContext('webgl2', { stencil: true, antialias: false });
 
     if (!gl) {
       setErrorText('WebGL2 does not supported');

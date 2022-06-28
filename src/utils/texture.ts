@@ -1,11 +1,7 @@
 export function createEmptyTexture(
   gl: WebGL2RenderingContext,
-  canvasSize: { width: number; height: number },
+  size: { width: number; height: number },
 ): WebGLTexture {
-  // create to render to
-  const targetTextureWidth = canvasSize.width;
-  const targetTextureHeight = canvasSize.height;
-
   const targetTexture = gl.createTexture();
   if (!targetTexture) {
     throw new Error("Can't create texture");
@@ -25,8 +21,8 @@ export function createEmptyTexture(
       gl.TEXTURE_2D,
       level,
       internalFormat,
-      targetTextureWidth,
-      targetTextureHeight,
+      size.width,
+      size.height,
       border,
       format,
       type,
@@ -44,9 +40,31 @@ export function createEmptyTexture(
   return targetTexture;
 }
 
+export function createRenderBuffer(
+  gl: WebGL2RenderingContext,
+  size: { width: number; height: number },
+): WebGLRenderbuffer {
+  const renderbuffer = gl.createRenderbuffer();
+  if (!renderbuffer) {
+    throw new Error("Can't create Renderbuffer");
+  }
+
+  gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
+  gl.renderbufferStorage(
+    gl.RENDERBUFFER,
+    gl.DEPTH_STENCIL,
+    size.width,
+    size.height,
+  );
+  gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+  return renderbuffer;
+}
+
 export function createFramebuffer(
   gl: WebGL2RenderingContext,
   targetTexture: WebGLTexture,
+  renderbuffer?: WebGLRenderbuffer,
 ): WebGLFramebuffer {
   // Create and bind the framebuffer
   const fb = gl.createFramebuffer();
@@ -66,6 +84,15 @@ export function createFramebuffer(
     targetTexture,
     level,
   );
+
+  if (renderbuffer) {
+    gl.framebufferRenderbuffer(
+      gl.FRAMEBUFFER,
+      gl.DEPTH_STENCIL_ATTACHMENT,
+      gl.RENDERBUFFER,
+      renderbuffer,
+    );
+  }
 
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 

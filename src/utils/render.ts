@@ -7,7 +7,11 @@ import { initVao } from './vao';
 import { computeMatrices, MatricesResult } from './matrices';
 import { degToRad } from './rad';
 import { ShaderProgram } from './types';
-import { createEmptyTexture, createFramebuffer } from './texture';
+import {
+  createEmptyTexture,
+  createFramebuffer,
+  createRenderBuffer,
+} from './texture';
 import { flatVertexShaderInfo } from './shaders/flat.vertex';
 import { textureFragmentShaderInfo } from './shaders/texture.fragment';
 import { initSquareModelBuffers } from '../models/square';
@@ -76,7 +80,12 @@ export function init(
   });
 
   const solidSceneTexture = createEmptyTexture(gl, canvasSize);
-  const solidSceneFb = createFramebuffer(gl, solidSceneTexture);
+  const solidRenderbuffer = createRenderBuffer(gl, canvasSize);
+  const solidSceneFb = createFramebuffer(
+    gl,
+    solidSceneTexture,
+    solidRenderbuffer,
+  );
 
   const blurredTexture = createEmptyTexture(gl, canvasSize);
   const blurredFb = createFramebuffer(gl, blurredTexture);
@@ -94,32 +103,79 @@ export function init(
       aspectRatio: canvasSize.width / canvasSize.height,
     });
 
+    drawScene(
+      {
+        depthTest: false,
+        cullFace: true,
+        stencil: true,
+        framebuffer: solidSceneFb,
+      },
+      () => {
+        gl.stencilFunc(gl.ALWAYS, 1, 0xff);
+        gl.stencilOp(
+          gl.KEEP, // what to do if the stencil test fails
+          gl.KEEP, // what to do if the depth test fails
+          gl.REPLACE, // what to do if both tests pass
+        );
+
+        drawObject(gl, solidProgram, solidVao, matrices, (program) => {
+          program.setUniform4Float('u_color', [1, 0, 0, 1]);
+        });
+      },
+    );
+
+    drawScene(
+      { depthTest: false, cullFace: false, framebuffer: blurredFb },
+      () => {
+        outlineProgram.activate();
+
+        // Bind the attribute/buffer set we want.
+        gl.bindVertexArray(outlineVao);
+
+        gl.bindTexture(gl.TEXTURE_2D, solidSceneTexture);
+
+        outlineProgram.setUniformInt('u_texture', 0);
+        outlineProgram.setUniformFloat('u_x_shift', 1 / canvasSize.width);
+        outlineProgram.setUniformFloat('u_y_shift', 1 / canvasSize.height);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      },
+    );
+
     gl.bindFramebuffer(gl.FRAMEBUFFER, solidSceneFb);
-    drawScene({ depthTest: false, cullFace: true }, () => {
-      drawObject(gl, solidProgram, solidVao, matrices, (program) => {
-        program.setUniform4Float('u_color', [1, 0, 0, 1]);
-      });
-    });
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+    gl.blitFramebuffer(
+      0,
+      0,
+      canvasSize.width,
+      canvasSize.height,
+      0,
+      0,
+      canvasSize.width,
+      canvasSize.height,
+      gl.STENCIL_BUFFER_BIT,
+      gl.NEAREST,
+    );
+
+    /*
+    gl.bindFramebuffer(gl.FRAMEBUFFER, solidSceneFb);
+    console.log('aaa', gl.getParameter(gl.SAMPLES));
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    console.log('bbb', gl.getParameter(gl.SAMPLES));
+     */
 
-    gl.bindFramebuffer(gl.FRAMEBUFFER, blurredFb);
-    drawScene({ depthTest: false, cullFace: false }, () => {
-      outlineProgram.activate();
+    drawScene({ depthTest: false, cullFace: false, stencil: true }, () => {
+      gl.stencilFunc(
+        gl.EQUAL, // the test
+        0, // reference value
+        0xff, // mask
+      );
+      gl.stencilOp(
+        gl.KEEP, // what to do if the stencil test fails
+        gl.KEEP, // what to do if the depth test fails
+        gl.KEEP, // what to do if both tests pass
+      );
 
-      // Bind the attribute/buffer set we want.
-      gl.bindVertexArray(outlineVao);
-
-      gl.bindTexture(gl.TEXTURE_2D, solidSceneTexture);
-
-      outlineProgram.setUniformInt('u_texture', 0);
-      outlineProgram.setUniformFloat('u_x_shift', 1 / canvasSize.width);
-      outlineProgram.setUniformFloat('u_y_shift', 1 / canvasSize.height);
-
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-    });
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-    drawScene({ depthTest: false, cullFace: false }, () => {
       outlineProgram.activate();
 
       // Bind the attribute/buffer set we want.
@@ -134,6 +190,7 @@ export function init(
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     });
 
+    /*
     drawScene({ depthTest: true, cullFace: true, clear: false }, () => {
       drawObject(gl, lightProgram, lightVao, matrices, (program) => {
         program.setUniform4Float('u_color', [0.2, 1, 0.2, 1]);
@@ -144,6 +201,7 @@ export function init(
         );
       });
     });
+    */
   }
 
   // Draw the scene.
@@ -152,9 +210,19 @@ export function init(
       depthTest,
       cullFace,
       clear = true,
-    }: { depthTest: boolean; cullFace: boolean; clear?: boolean },
+      stencil,
+      framebuffer,
+    }: {
+      depthTest: boolean;
+      cullFace: boolean;
+      clear?: boolean;
+      stencil?: boolean;
+      framebuffer?: WebGLFramebuffer;
+    },
     drawCallback: () => void,
   ) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer ?? null);
+
     // Tell WebGL how to convert from clip space to pixels
     gl.viewport(0, 0, canvasSize.width, canvasSize.height);
 
@@ -174,6 +242,12 @@ export function init(
       gl.enable(gl.CULL_FACE);
     } else {
       gl.disable(gl.CULL_FACE);
+    }
+
+    if (stencil) {
+      gl.enable(gl.STENCIL_TEST);
+    } else {
+      gl.disable(gl.STENCIL_TEST);
     }
 
     drawCallback();
