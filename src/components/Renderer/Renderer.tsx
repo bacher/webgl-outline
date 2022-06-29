@@ -16,6 +16,8 @@ export function Renderer() {
       return;
     }
 
+    (window as any).gl = gl;
+
     const { drawScene, setRotation } = init(gl, {
       width: canvas.width,
       height: canvas.height,
