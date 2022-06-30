@@ -1,3 +1,5 @@
+import type { Size } from './types';
+
 export function createEmptyTexture(
   gl: WebGL2RenderingContext,
   size: { width: number; height: number },
@@ -42,7 +44,7 @@ export function createEmptyTexture(
 
 export function createRenderBuffer(
   gl: WebGL2RenderingContext,
-  size: { width: number; height: number },
+  size: Size,
 ): WebGLRenderbuffer {
   const renderbuffer = gl.createRenderbuffer();
   if (!renderbuffer) {
@@ -61,40 +63,87 @@ export function createRenderBuffer(
   return renderbuffer;
 }
 
+export function createRenderbufferSampled(
+  gl: WebGL2RenderingContext,
+  size: Size,
+  samples: number,
+): WebGLRenderbuffer {
+  const colorRenderbuffer = gl.createRenderbuffer();
+  if (!colorRenderbuffer) {
+    throw new Error("Can't create Renderbuffer");
+  }
+
+  gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderbuffer);
+  gl.renderbufferStorageMultisample(
+    gl.RENDERBUFFER,
+    samples,
+    gl.RGBA8,
+    size.width,
+    size.height,
+  );
+
+  gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+  return colorRenderbuffer;
+}
+
+export enum FramebufferBufferType {
+  TEXTURE = 'TEXTURE',
+  RENDERBUFFER = 'RENDERBUFFER',
+}
+
+export type FramebufferBuffer =
+  | {
+      type: FramebufferBufferType.TEXTURE;
+      texture: WebGLTexture;
+    }
+  | {
+      type: FramebufferBufferType.RENDERBUFFER;
+      buffer: WebGLRenderbuffer;
+    };
+
 export function createFramebuffer(
   gl: WebGL2RenderingContext,
-  targetTexture: WebGLTexture,
-  renderbuffer?: WebGLRenderbuffer,
+  colorBuffer: FramebufferBuffer,
+  depthStencilRenderbuffer?: WebGLRenderbuffer,
 ): WebGLFramebuffer {
   // Create and bind the framebuffer
-  const fb = gl.createFramebuffer();
-  if (!fb) {
+  const framebuffer = gl.createFramebuffer();
+  if (!framebuffer) {
     throw new Error("Can't create Framebuffer");
   }
 
-  gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 
-  // attach the texture as the first color attachment
-  const attachmentPoint = gl.COLOR_ATTACHMENT0;
-  const level = 0;
-  gl.framebufferTexture2D(
-    gl.FRAMEBUFFER,
-    attachmentPoint,
-    gl.TEXTURE_2D,
-    targetTexture,
-    level,
-  );
+  // attach buffer as the first color attachment
+  if (colorBuffer.type === FramebufferBufferType.TEXTURE) {
+    const level = 0;
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      gl.TEXTURE_2D,
+      colorBuffer.texture,
+      level,
+    );
+  } else {
+    gl.framebufferRenderbuffer(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      gl.RENDERBUFFER,
+      colorBuffer.buffer,
+    );
+  }
 
-  if (renderbuffer) {
+  if (depthStencilRenderbuffer) {
     gl.framebufferRenderbuffer(
       gl.FRAMEBUFFER,
       gl.DEPTH_STENCIL_ATTACHMENT,
       gl.RENDERBUFFER,
-      renderbuffer,
+      depthStencilRenderbuffer,
     );
   }
 
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-  return fb;
+  return framebuffer;
 }

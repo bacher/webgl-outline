@@ -1,4 +1,5 @@
 import { degToRad } from './rad';
+import { ShaderProgram } from './types';
 
 declare const m4: any;
 
@@ -50,4 +51,18 @@ export function computeMatrices({
     worldViewProjectionMatrix,
     worldInverseTransposeMatrix,
   };
+}
+
+export function applyMatrices(
+  program: ShaderProgram,
+  matrices: MatricesResult,
+): void {
+  program.setUniformMat4(
+    'u_worldViewProjection',
+    matrices.worldViewProjectionMatrix,
+  );
+  program.setUniformMat4(
+    'u_worldInverseTranspose',
+    matrices.worldInverseTransposeMatrix,
+  );
 }

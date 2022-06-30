@@ -1,3 +1,8 @@
+export type Size = {
+  width: number;
+  height: number;
+};
+
 export type VertexShaderInfo = {
   source: string;
   uniforms: string[];
