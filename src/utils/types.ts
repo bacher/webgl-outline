@@ -1,3 +1,5 @@
+import { vec3 } from 'gl-matrix';
+
 export type Size = {
   width: number;
   height: number;
@@ -27,7 +29,7 @@ export type ShaderProgram = {
   setUniformUIntArray: (uniformName: string, value: Uint32Array) => void;
   setUniform3Float: (
     uniformName: string,
-    value: [number, number, number],
+    value: [number, number, number] | vec3,
   ) => void;
   setUniform4Float: (
     uniformName: string,

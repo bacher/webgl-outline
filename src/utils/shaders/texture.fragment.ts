@@ -26,6 +26,10 @@ void main() {
   outColor += texture(u_texture, vec2(v_uv.x - 2.0 * u_x_shift, v_uv.y));
   outColor += texture(u_texture, vec2(v_uv.x, v_uv.y + 2.0 * u_y_shift));
   outColor += texture(u_texture, vec2(v_uv.x, v_uv.y - 2.0 * u_y_shift));
+
+  if (outColor.r == 0.0) {
+    discard;
+  }
 }`,
   uniforms: ['u_texture', 'u_x_shift', 'u_y_shift'],
 };
