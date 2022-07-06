@@ -12,7 +12,7 @@ out vec3 v_normal;
 
 void main() {
   gl_Position = u_worldViewProjection * u_modelTransform * a_position;
-  v_normal = mat3(u_worldInverseTranspose) * a_normal;
+  v_normal = a_normal;
 }`,
   uniforms: ['u_worldViewProjection', 'u_worldInverseTranspose', 'u_modelTransform'],
   attributes: ['a_position', 'a_normal'],

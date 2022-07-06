@@ -4,6 +4,7 @@ import { ShaderProgram } from './types';
 declare const m4: any;
 
 export type MatricesResult = {
+  worldMatrix: number[];
   worldViewProjectionMatrix: number[];
   worldInverseTransposeMatrix: number[];
 };
@@ -48,6 +49,7 @@ export function computeMatrices({
   const worldInverseTransposeMatrix = m4.transpose(worldInverseMatrix);
 
   return {
+    worldMatrix,
     worldViewProjectionMatrix,
     worldInverseTransposeMatrix,
   };

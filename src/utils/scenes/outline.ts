@@ -1,4 +1,4 @@
-import { vec3, quat } from 'gl-matrix';
+import { vec3, quat, mat3, mat4 } from 'gl-matrix';
 
 import { initModelBuffers } from '../../models/f';
 import { initSquareModelBuffers } from '../../models/square';
@@ -237,11 +237,8 @@ export function init(
             verticesCount: 16 * 6,
           },
           (program) => {
-            const light = vec3.create();
-            vec3.transformQuat(light, globalLight, sceneObject.rotation);
-
             program.setUniformMat4('u_modelTransform', sceneObject.matrix);
-            program.setUniform3Float('u_reverseLightDirection', light);
+            program.setUniform3Float('u_reverseLightDirection', globalLight);
             program.setUniform4Float('u_color', sceneObject.color);
           },
         );
