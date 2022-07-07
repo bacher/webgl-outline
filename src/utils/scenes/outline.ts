@@ -7,7 +7,7 @@ import { baseVertexShaderInfo } from '../shaders/base.vertex';
 import { lightFragmentShaderInfo } from '../shaders/light.fragment';
 import { solidFragmentShaderInfo } from '../shaders/solid.fragment';
 import { initVao } from '../vao';
-import { applyMatrices, computeMatrices } from '../matrices';
+import { applyMatrices, computeMatrices, interpolateMat4 } from '../matrices';
 import { degToRad } from '../rad';
 import {
   createEmptyTexture,
@@ -20,7 +20,6 @@ import { textureFragmentShaderInfo } from '../shaders/texture.fragment';
 import { drawObject } from '../drawObject';
 import { activateFramebuffer } from '../framebuffer';
 import { createSceneObject, SceneObject } from '../sceneObject';
-import { printVec3 } from '../debug';
 
 declare const m4: any;
 
@@ -62,6 +61,9 @@ const sceneObjects: SceneObject[] = [
     color: [0.4, 0.4, 0.8, 1],
   }),
 ];
+
+const someOtherMatrix = mat4.fromQuat(mat4.create(), getRandomRotation());
+// mat4.translate(someOtherMatrix, someOtherMatrix, [5, 10, 70]);
 
 const outlineObject = sceneObjects[0];
 
@@ -245,7 +247,17 @@ export function init(
             verticesCount: 16 * 6,
           },
           (program) => {
-            program.setUniformMat4('u_modelTransform', sceneObject.matrix);
+            let matrix = sceneObject.matrix;
+
+            if (sceneObject === sceneObjects[0]) {
+              matrix = interpolateMat4(
+                sceneObject.matrix,
+                someOtherMatrix,
+                (window as any)._value / 100,
+              );
+            }
+
+            program.setUniformMat4('u_modelTransform', matrix);
 
             const light = vec3.transformQuat(
               vec3.create(),

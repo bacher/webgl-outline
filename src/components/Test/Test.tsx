@@ -33,6 +33,8 @@ export function Test() {
 }
 
 function test(val: number) {
+  (window as any)._value = val;
+
   const m = mat4.create();
   // const m2 = mat4.create();
 
