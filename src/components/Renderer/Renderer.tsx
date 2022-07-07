@@ -27,7 +27,7 @@ export function Renderer() {
     if (window.location.search.includes('animate')) {
       let i = 0;
 
-      const interval = 100;
+      const interval = 20;
 
       const intervalId = setInterval(() => {
         i++;

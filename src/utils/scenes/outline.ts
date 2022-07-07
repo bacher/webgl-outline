@@ -1,4 +1,4 @@
-import { vec3, quat, mat3, mat4 } from 'gl-matrix';
+import { vec3, vec4, quat, mat3, mat4 } from 'gl-matrix';
 
 import { initModelBuffers } from '../../models/f';
 import { initSquareModelBuffers } from '../../models/square';
@@ -20,6 +20,7 @@ import { textureFragmentShaderInfo } from '../shaders/texture.fragment';
 import { drawObject } from '../drawObject';
 import { activateFramebuffer } from '../framebuffer';
 import { createSceneObject, SceneObject } from '../sceneObject';
+import { printVec3 } from '../debug';
 
 declare const m4: any;
 
@@ -238,7 +239,27 @@ export function init(
           },
           (program) => {
             program.setUniformMat4('u_modelTransform', sceneObject.matrix);
-            program.setUniform3Float('u_reverseLightDirection', globalLight);
+
+            const finalMat = mat4.multiply(
+              mat4.create(),
+              matrices.worldMatrix,
+              mat4.fromQuat(mat4.create(), sceneObject.rotation),
+            );
+
+            mat4.invert(finalMat, finalMat);
+
+            const light = vec3.transformMat4(
+              vec3.create(),
+              globalLight,
+              finalMat,
+            );
+            vec3.normalize(light, light);
+
+            // if (sceneObject === sceneObjects[1]) {
+            //   printVec3(light);
+            // }
+
+            program.setUniform3Float('u_reverseLightDirection', light);
             program.setUniform4Float('u_color', sceneObject.color);
           },
         );

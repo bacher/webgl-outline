@@ -1,12 +1,14 @@
+import { mat4 } from 'gl-matrix';
+
 import { degToRad } from './rad';
 import { ShaderProgram } from './types';
 
 declare const m4: any;
 
 export type MatricesResult = {
-  worldMatrix: number[];
-  worldViewProjectionMatrix: number[];
-  worldInverseTransposeMatrix: number[];
+  worldMatrix: mat4;
+  worldViewProjectionMatrix: mat4;
+  worldInverseTransposeMatrix: mat4;
 };
 
 export function computeMatrices({
