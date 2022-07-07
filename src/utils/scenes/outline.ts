@@ -227,6 +227,13 @@ export function init(
       lightProgram.activate();
       applyMatrices(lightProgram, matrices);
 
+      const worldInvert = mat4.invert(mat4.create(), matrices.worldMatrix);
+      const worldLight = vec3.transformMat4(
+        vec3.create(),
+        globalLight,
+        worldInvert,
+      );
+
       for (const sceneObject of sceneObjects) {
         drawObject(
           gl,
@@ -240,24 +247,13 @@ export function init(
           (program) => {
             program.setUniformMat4('u_modelTransform', sceneObject.matrix);
 
-            const finalMat = mat4.multiply(
-              mat4.create(),
-              matrices.worldMatrix,
-              mat4.fromQuat(mat4.create(), sceneObject.rotation),
-            );
-
-            mat4.invert(finalMat, finalMat);
-
-            const light = vec3.transformMat4(
+            const light = vec3.transformQuat(
               vec3.create(),
-              globalLight,
-              finalMat,
+              worldLight,
+              sceneObject.rotationInvert,
             );
-            vec3.normalize(light, light);
 
-            // if (sceneObject === sceneObjects[1]) {
-            //   printVec3(light);
-            // }
+            vec3.normalize(light, light);
 
             program.setUniform3Float('u_reverseLightDirection', light);
             program.setUniform4Float('u_color', sceneObject.color);
