@@ -16,7 +16,7 @@ import {
   FramebufferBufferType,
 } from '../texture';
 import { flatVertexShaderInfo } from '../shaders/flat.vertex';
-import { textureFragmentShaderInfo } from '../shaders/texture.fragment';
+import { outlineFragmentShaderInfo } from '../shaders/outline.fragment';
 import { drawObject } from '../drawObject';
 import { activateFramebuffer } from '../framebuffer';
 import { createSceneObject, SceneObject } from '../sceneObject';
@@ -83,7 +83,7 @@ export function init(
   const outlineProgram = createShaderProgram(
     gl,
     flatVertexShaderInfo,
-    textureFragmentShaderInfo,
+    outlineFragmentShaderInfo,
   );
 
   const lightProgram = createShaderProgram(

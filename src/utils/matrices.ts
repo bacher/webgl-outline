@@ -14,19 +14,40 @@ export type MatricesResult = {
 export function computeMatrices({
   state,
   aspectRatio,
+  isUseSquare = false,
 }: {
   state: { fRotationRadians: number };
   aspectRatio: number;
+  isUseSquare?: boolean;
 }): MatricesResult {
   const fieldOfViewRadians = degToRad(60);
 
-  const projectionMatrix = mat4.perspective(
-    mat4.create(),
-    fieldOfViewRadians,
-    aspectRatio,
-    1,
-    2000,
-  );
+  let projectionMatrix: mat4;
+
+  if (isUseSquare) {
+    projectionMatrix = mat4.perspectiveFromFieldOfView(
+      mat4.create(),
+      {
+        upDegrees: 30,
+        downDegrees: 0,
+        // leftDegrees: 0 + (window as any)._value,
+        leftDegrees: 30,
+        // leftDegrees: 49.1 / 2,
+        // Why width 800 = > 49.1, but width 400 => 30 ?
+        rightDegrees: 0,
+      },
+      1,
+      2000,
+    );
+  } else {
+    projectionMatrix = mat4.perspective(
+      mat4.create(),
+      fieldOfViewRadians,
+      aspectRatio,
+      1,
+      2000,
+    );
+  }
 
   // Compute the camera's matrix
   const camera = [100, 150, 200];

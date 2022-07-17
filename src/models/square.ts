@@ -1,12 +1,23 @@
 // Fill the current ARRAY_BUFFER buffer
 // with the values that define a letter 'F'.
-function setGeometry(gl: WebGL2RenderingContext) {
-  const positions = new Float32Array([
-    // first triangle
-    -1, 1, 0, 1, 1, 0, 1, -1, 0,
-    // second triangle
-    -1, 1, 0, 1, -1, 0, -1, -1, 0,
-  ]);
+function setGeometry(gl: WebGL2RenderingContext, isSquad = false) {
+  let positions;
+
+  if (isSquad) {
+    positions = new Float32Array([
+      // first triangle
+      -0.5, 1, 0, 0, 1, 0, 0, 0, 0,
+      // second triangle
+      -0.5, 1, 0, 0, 0, 0, -0.5, 0, 0,
+    ]);
+  } else {
+    positions = new Float32Array([
+      // first triangle
+      -1, 1, 0, 1, 1, 0, 1, -1, 0,
+      // second triangle
+      -1, 1, 0, 1, -1, 0, -1, -1, 0,
+    ]);
+  }
 
   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
 }
@@ -22,7 +33,10 @@ function setUv(gl: WebGL2RenderingContext) {
   gl.bufferData(gl.ARRAY_BUFFER, uv, gl.STATIC_DRAW);
 }
 
-export function initSquareModelBuffers(gl: WebGL2RenderingContext): {
+export function initSquareModelBuffers(
+  gl: WebGL2RenderingContext,
+  isSquad = false,
+): {
   positionBuffer: WebGLBuffer;
   uvBuffer: WebGLBuffer;
 } {
@@ -35,7 +49,7 @@ export function initSquareModelBuffers(gl: WebGL2RenderingContext): {
   // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   // Set Geometry.
-  setGeometry(gl);
+  setGeometry(gl, isSquad);
 
   // create the uv buffer, make it the current ARRAY_BUFFER
   // and copy in the normal values

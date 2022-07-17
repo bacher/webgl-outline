@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 
 // import { init } from '../../utils/scenes/outline';
 // import { init } from '../../utils/scenes/multisampleFramebuffer';
-import { init } from '../../utils/scenes/simple';
+// import { init } from '../../utils/scenes/simple';
+import { init } from '../../utils/scenes/screenPart';
 
 export function Renderer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -32,7 +33,7 @@ export function Renderer() {
 
       const intervalId = setInterval(() => {
         i++;
-        // setRotation(-i * 5 * (interval / 100));
+        setRotation(-i * 5 * (interval / 100));
         draw();
       }, interval);
 
