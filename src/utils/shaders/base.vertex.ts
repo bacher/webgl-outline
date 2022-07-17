@@ -14,6 +14,10 @@ void main() {
   gl_Position = u_worldViewProjection * u_modelTransform * a_position;
   v_normal = a_normal;
 }`,
-  uniforms: ['u_worldViewProjection', 'u_worldInverseTranspose', 'u_modelTransform'],
+  uniforms: [
+    'u_worldViewProjection',
+    'u_worldInverseTranspose',
+    'u_modelTransform',
+  ],
   attributes: ['a_position', 'a_normal'],
 };

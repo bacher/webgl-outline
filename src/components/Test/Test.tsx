@@ -34,11 +34,12 @@ export function Test() {
 
 function test(val: number) {
   (window as any)._value = val;
+  console.log('val =', val);
+
+  return;
 
   const m = mat4.create();
   // const m2 = mat4.create();
-
-  // console.log('val =', val);
 
   // mat4.perspective(m, Math.PI / 2, 800 / 600, val / 1000, 1000);
 

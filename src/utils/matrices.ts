@@ -20,8 +20,8 @@ export function computeMatrices({
 }): MatricesResult {
   const fieldOfViewRadians = degToRad(60);
 
-  // Compute the matrix
-  const projectionMatrix = m4.perspective(
+  const projectionMatrix = mat4.perspective(
+    mat4.create(),
     fieldOfViewRadians,
     aspectRatio,
     1,
