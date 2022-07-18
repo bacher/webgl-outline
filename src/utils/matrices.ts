@@ -31,9 +31,13 @@ export function computeMatrices({
         upDegrees: 30,
         downDegrees: 0,
         // leftDegrees: 0 + (window as any)._value,
-        leftDegrees: 30,
-        // leftDegrees: 49.1 / 2,
-        // Why width 800 = > 49.1, but width 400 => 30 ?
+        // leftDegrees: 30,
+        leftDegrees: 41,
+        // leftDegrees: 49.1,
+        // Why width
+        // 800 => 49.1  |  2   => 0.2727272 // 1.63666
+        // 600 => 41    |  1.5 => 0.2277777 // 1.36666
+        // 400 => 30    |  1   => 0.1666666 // 1
         rightDegrees: 0,
       },
       1,

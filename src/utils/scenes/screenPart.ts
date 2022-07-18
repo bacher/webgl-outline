@@ -106,15 +106,16 @@ export function init(
   });
 
   const squareSize = {
-    width: canvasSize.width / 4,
+    width: canvasSize.width * (3 / 8),
     height: canvasSize.height / 2,
   };
 
-  const squareSceneTexture = createEmptyTexture(gl, squareSize);
+  // const squareSceneTexture = createEmptyTexture(gl, squareSize);
+  const squareSceneTexture = createRenderBuffer(gl, squareSize, true);
   const squareRenderbuffer = createRenderBuffer(gl, squareSize);
   const squareSceneFb = createFramebuffer(
     gl,
-    { type: FramebufferBufferType.TEXTURE, texture: squareSceneTexture },
+    { type: FramebufferBufferType.RENDERBUFFER, buffer: squareSceneTexture },
     squareRenderbuffer,
   );
 
@@ -216,17 +217,32 @@ export function init(
         );
       }
 
-      drawObject(
-        gl,
-        textureProgram,
-        squareVao,
-        { depthTest: false, cullFace: false, verticesCount: 6 },
-        (program) => {
-          gl.bindTexture(gl.TEXTURE_2D, squareSceneTexture);
-          program.setUniformInt('u_texture', 0);
-        },
-      );
+      // drawObject(
+      //   gl,
+      //   textureProgram,
+      //   squareVao,
+      //   { depthTest: false, cullFace: false, verticesCount: 6 },
+      //   (program) => {
+      //     gl.bindTexture(gl.TEXTURE_2D, squareSceneTexture);
+      //     program.setUniformInt('u_texture', 0);
+      //   },
+      // );
     });
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, squareSceneFb);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+    gl.blitFramebuffer(
+      0,
+      0,
+      squareSize.width,
+      squareSize.height,
+      canvasSize.width / 8,
+      squareSize.height,
+      canvasSize.width / 8 + squareSize.width,
+      squareSize.height + squareSize.height,
+      gl.COLOR_BUFFER_BIT,
+      gl.LINEAR,
+    );
   }
 
   return {

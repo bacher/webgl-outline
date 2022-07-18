@@ -45,6 +45,7 @@ export function createEmptyTexture(
 export function createRenderBuffer(
   gl: WebGL2RenderingContext,
   size: Size,
+  isColor = false,
 ): WebGLRenderbuffer {
   const renderbuffer = gl.createRenderbuffer();
   if (!renderbuffer) {
@@ -54,7 +55,7 @@ export function createRenderBuffer(
   gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
   gl.renderbufferStorage(
     gl.RENDERBUFFER,
-    gl.DEPTH_STENCIL,
+    isColor ? gl.RGB8 : gl.DEPTH_STENCIL,
     size.width,
     size.height,
   );
