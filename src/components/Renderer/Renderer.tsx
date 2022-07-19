@@ -29,16 +29,20 @@ export function Renderer() {
     if (window.location.search.includes('animate')) {
       let i = 0;
 
-      const interval = 20;
+      const interval = 16;
+      let intervalId: number;
 
-      const intervalId = setInterval(() => {
+      const ddd = () => {
         i++;
         setRotation(-i * 5 * (interval / 100));
         draw();
-      }, interval);
+        intervalId = requestAnimationFrame(ddd);
+      };
+
+      intervalId = requestAnimationFrame(ddd);
 
       return () => {
-        clearInterval(intervalId);
+        cancelAnimationFrame(intervalId);
       };
     }
   }, []);
