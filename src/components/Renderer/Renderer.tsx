@@ -41,6 +41,9 @@ export function Renderer() {
 
       intervalId = requestAnimationFrame(ddd);
 
+      // Scissor box ?
+      // Dither ?
+
       return () => {
         cancelAnimationFrame(intervalId);
       };
