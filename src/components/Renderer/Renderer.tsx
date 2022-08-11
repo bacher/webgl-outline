@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 
-// import { init } from '../../utils/scenes/outline';
+import { init } from '../../utils/scenes/outline';
 // import { init } from '../../utils/scenes/multisampleFramebuffer';
 // import { init } from '../../utils/scenes/simple';
-import { init } from '../../utils/scenes/screenPart';
+// import { init } from '../../utils/scenes/screenPart';
+
+const FORCE_ANIMATE = true;
 
 export function Renderer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -26,7 +28,7 @@ export function Renderer() {
       height: canvas.height,
     });
 
-    if (window.location.search.includes('animate')) {
+    if (FORCE_ANIMATE || window.location.search.includes('animate')) {
       let i = 0;
 
       const interval = 16;
